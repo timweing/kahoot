@@ -359,3 +359,68 @@ button:disabled {
     padding: 20px 22px 22px;
   }
 }
+
+
+/* Mobile Layout Optimierung */
+@media (max-width: 640px) {
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 12px 10px 24px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    margin-bottom: 14px;
+    padding: 14px 14px 16px;
+  }
+
+  /* Frage-Metadaten untereinander statt nebeneinander */
+  #questionMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .meta-left {
+    margin-bottom: 2px;
+  }
+
+  /* Antwort-Buttons einspaltig und fingerfreundlich */
+  .answers {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .answer-btn {
+    font-size: 1rem;
+    min-height: 56px;
+    padding: 12px 14px;
+  }
+
+  /* Buttons generell über die volle Breite (Join, Start etc.) */
+  button {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  input[type="text"],
+  input[type="file"] {
+    font-size: 1rem;
+  }
+
+  /* Rangliste etwas kompakter auf kleinen Screens */
+  .ranking-table th,
+  .ranking-table td {
+    padding: 8px 6px;
+  }
+}
