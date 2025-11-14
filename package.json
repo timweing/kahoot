@@ -1,0 +1,17 @@
+{
+  "name": "kahoot-clone",
+  "version": "1.0.0",
+  "description": "Ein einfaches Kahoot-ähnliches Quiz mit Node.js, Express und Socket.IO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

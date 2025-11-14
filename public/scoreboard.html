@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quiz Rangliste</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Rangliste</h1>
+
+      <div class="card">
+        <p id="scoreboardStatus" class="status">
+          Warte auf Quizstart oder erste Antworten ...
+        </p>
+
+        <table
+          class="ranking-table"
+          id="scoreboardTable"
+          style="display: none"
+        >
+          <thead>
+            <tr>
+              <th>Platz</th>
+              <th>Name</th>
+              <th>Punkte</th>
+            </tr>
+          </thead>
+          <tbody id="scoreboardBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scoreboard.js"></script>
+  </body>
+</html>

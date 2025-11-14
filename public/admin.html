@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quiz Admin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Quiz Admin</h1>
+
+      <div class="card">
+        <h2>CSV hochladen</h2>
+        <p>
+          CSV Format (mit Kopfzeile):<br />
+          <code
+            >Frage, RichtigeAntwort, FalscheAntwort1, FalscheAntwort2,
+            FalscheAntwort3, ZeitInSekunden</code
+          >
+        </p>
+        <form id="uploadForm">
+          <input type="file" id="csvFile" accept=".csv" required />
+          <button type="submit">CSV hochladen</button>
+        </form>
+        <p id="uploadStatus" class="status"></p>
+      </div>
+
+      <div class="card">
+        <h2>Quiz Kontrolle</h2>
+        <p id="quizInfo" class="status">Noch kein Quiz geladen.</p>
+        <button id="startQuizBtn" disabled>Quiz starten</button>
+      </div>
+
+      <div class="card">
+        <h2>Spieler</h2>
+        <ul id="players" class="players-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Rangliste</h2>
+        <table class="ranking-table" id="rankingTable" style="display: none">
+          <thead>
+            <tr>
+              <th>Platz</th>
+              <th>Name</th>
+              <th>Punkte</th>
+            </tr>
+          </thead>
+          <tbody id="rankingBody"></tbody>
+        </table>
+        <p id="rankingStatus" class="status"></p>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/admin.js"></script>
+  </body>
+</html>
