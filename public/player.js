@@ -43,13 +43,17 @@ function startCountdown(timeLimitSeconds) {
 
   let remaining = timeLimitSeconds;
   timerLabel.textContent = remaining + "s";
+  // Reset transition and force reflow to ensure the bar animates on mobile
+  timerBar.style.transition = "none";
   timerBar.style.transform = "scaleX(1)";
+  // Force reflow so the browser picks up the reset transform before starting
+  void timerBar.offsetWidth;
   // Dauer der Transition = timeLimitSeconds (linear, in CSS already linear)
   timerBar.style.transition = `transform ${remaining}s linear`;
-  // kleines Timeout, damit CSS-Transition greift
-  setTimeout(() => {
+  // nächster Frame: Animation starten
+  requestAnimationFrame(() => {
     timerBar.style.transform = "scaleX(0)";
-  }, 40);
+  });
 
   countdownInterval = setInterval(() => {
     remaining -= 1;

@@ -19,6 +19,7 @@ let quizQuestions = []; // [{question, correct, wrong:[...], time}]
 let quizInProgress = false;
 let currentQuestionIndex = -1;
 let questionTimer = null;
+let questionStats = [];
 
 // Spieler: Map socketId -> { name, score }
 const players = new Map();
@@ -103,9 +104,34 @@ function endQuiz() {
   }
 
   const ranking = getRanking();
+  const questionRanking = quizQuestions.map((q, index) => {
+    const stats = questionStats[index] || { correct: 0, total: 0 };
+    const total = stats.total || 0;
+    const correct = stats.correct || 0;
+    const accuracy = total > 0 ? correct / total : 0;
+
+    return {
+      index,
+      question: q.question,
+      correct,
+      total,
+      accuracy,
+    };
+  });
+
+  questionRanking.sort((a, b) => {
+    if (a.accuracy !== b.accuracy) {
+      return a.accuracy - b.accuracy;
+    }
+    if (a.total !== b.total) {
+      return b.total - a.total;
+    }
+    return a.index - b.index;
+  });
 
   io.emit("quiz-ended", {
     ranking,
+    questionRanking,
   });
 }
 
@@ -170,6 +196,7 @@ app.post("/upload-csv", upload.single("file"), (req, res) => {
   quizQuestions = parsedQuestions;
   quizInProgress = false;
   currentQuestionIndex = -1;
+  questionStats = [];
 
   io.to("admins").emit("quiz-loaded", {
     totalQuestions: quizQuestions.length,
@@ -235,6 +262,7 @@ io.on("connection", (socket) => {
     quizInProgress = true;
     currentQuestionIndex = -1;
     answersPerQuestion.clear();
+    questionStats = quizQuestions.map(() => ({ correct: 0, total: 0 }));
 
     io.emit("quiz-started");
     nextQuestion();
@@ -263,6 +291,14 @@ io.on("connection", (socket) => {
 
     const isCorrect =
       typeof answer === "string" && answer === q.correct;
+
+    const statsEntry = questionStats[questionIndex];
+    if (statsEntry) {
+      statsEntry.total += 1;
+      if (isCorrect) {
+        statsEntry.correct += 1;
+      }
+    }
 
     if (isCorrect) {
       player.score += 1;
