@@ -51,6 +51,29 @@
         </table>
         <p id="rankingStatus" class="status"></p>
       </div>
+
+      <div class="card">
+        <h2>Fragenanalyse</h2>
+        <p id="questionStatsStatus" class="status">
+          Noch keine Antworten ausgewertet.
+        </p>
+        <table
+          class="ranking-table"
+          id="questionStatsTable"
+          style="display: none"
+        >
+          <thead>
+            <tr>
+              <th>Platz</th>
+              <th>Frage</th>
+              <th>Richtig</th>
+              <th>Gesamt</th>
+              <th>Quote</th>
+            </tr>
+          </thead>
+          <tbody id="questionStatsBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
