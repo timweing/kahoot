@@ -187,7 +187,7 @@ button:disabled {
   height: 100%;
   width: 100%;
   transform-origin: left center;
-  background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444);
+  background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e);
   transition: transform linear;
 }
 
