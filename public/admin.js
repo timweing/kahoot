@@ -1,4 +1,14 @@
-const socket = io({ query: { role: "admin" } });
+const adminPassword =
+  window.prompt("Bitte Admin-Passwort eingeben:") || "";
+
+if (!adminPassword) {
+  window.alert("Ohne Passwort gibt es keinen Admin-Zugriff.");
+  window.location.href = "/";
+}
+
+const socket = io({
+  query: { role: "admin", adminPassword },
+});
 
 const uploadForm = document.getElementById("uploadForm");
 const csvFileInput = document.getElementById("csvFile");
@@ -15,6 +25,11 @@ const rankingStatus = document.getElementById("rankingStatus");
 const questionStatsTable = document.getElementById("questionStatsTable");
 const questionStatsBody = document.getElementById("questionStatsBody");
 const questionStatsStatus = document.getElementById("questionStatsStatus");
+
+socket.on("admin-auth-failed", () => {
+  window.alert("Admin-Passwort ist falsch.");
+  window.location.href = "/";
+});
 
 // CSV Upload
 uploadForm.addEventListener("submit", async (e) => {
@@ -33,6 +48,9 @@ uploadForm.addEventListener("submit", async (e) => {
     const res = await fetch("/upload-csv", {
       method: "POST",
       body: formData,
+      headers: {
+        "x-admin-password": adminPassword,
+      },
     });
     const data = await res.json();
     if (data.success) {

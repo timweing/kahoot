@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin";
 
 // Static Files
 app.use(express.static(path.join(__dirname, "public")));
@@ -149,6 +150,13 @@ function nextQuestion() {
 
 // CSV Upload Route
 app.post("/upload-csv", upload.single("file"), (req, res) => {
+  const providedPassword = req.headers["x-admin-password"];
+  if (!providedPassword || providedPassword !== ADMIN_PASSWORD) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Admin-Passwort falsch." });
+  }
+
   if (!req.file) {
     return res.status(400).json({ success: false, message: "Keine Datei" });
   }
@@ -211,7 +219,16 @@ app.post("/upload-csv", upload.single("file"), (req, res) => {
 
 
 io.on("connection", (socket) => {
-  const role = socket.handshake.query.role || "player";
+  const requestedRole = socket.handshake.query.role || "player";
+  const adminPassword = socket.handshake.query.adminPassword || "";
+  const isAdmin = requestedRole === "admin" && adminPassword === ADMIN_PASSWORD;
+  if (requestedRole === "admin" && !isAdmin) {
+    socket.emit("admin-auth-failed");
+    socket.disconnect();
+    return;
+  }
+
+  const role = isAdmin ? "admin" : requestedRole;
 
   if (role === "admin") {
     socket.join("admins");
