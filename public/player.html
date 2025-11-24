@@ -8,11 +8,11 @@
   </head>
   <body>
     <div class="container">
-      <h1>Live Quiz</h1>
+      <h1 id="playerHeading">Live Quiz</h1>
 
       <div class="card" id="joinCard">
-        <h2>Beitreten</h2>
-        <p class="status">
+        <h2 id="joinTitle">Beitreten</h2>
+        <p class="status" id="joinSubtitle">
           Wähle einen Anzeigenamen, der in der Rangliste erscheint.
         </p>
         <input
@@ -26,8 +26,8 @@
       </div>
 
       <div class="card" id="waitCard" style="display: none">
-        <h2>Bereit machen 🎧</h2>
-        <p class="status">
+        <h2 id="waitTitle">Bereit machen 🎧</h2>
+        <p class="status" id="waitSubtitle">
           Du bist dabei! Warte, bis der Admin das Quiz startet.
         </p>
       </div>
@@ -54,7 +54,7 @@
       </div>
 
       <div class="card" id="endCard" style="display: none">
-        <h2>Quiz beendet</h2>
+        <h2 id="endTitle">Quiz beendet</h2>
         <p id="endText" class="status"></p>
       </div>
     </div>

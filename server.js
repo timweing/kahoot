@@ -22,6 +22,7 @@ let quizInProgress = false;
 let currentQuestionIndex = -1;
 let questionTimer = null;
 let questionStats = [];
+let uiLanguage = "de";
 
 // Spieler: Map socketId -> { name, score }
 const players = new Map();
@@ -237,6 +238,7 @@ io.on("connection", (socket) => {
       totalQuestions: quizQuestions.length,
       quizInProgress,
       currentQuestionIndex,
+      language: uiLanguage,
     });
     broadcastPlayerList();
   } else if (role === "scoreboard") {
@@ -247,6 +249,7 @@ io.on("connection", (socket) => {
       totalQuestions: quizQuestions.length,
       quizInProgress,
       currentQuestionIndex,
+      language: uiLanguage,
     });
     // Falls schon Scores existieren, gleich schicken
     const ranking = getRanking();
@@ -269,6 +272,16 @@ io.on("connection", (socket) => {
       broadcastPlayerList();
     });
   }
+
+  socket.emit("language", { lang: uiLanguage });
+
+  socket.on("set-language", (lang) => {
+    if (role !== "admin") return;
+    if (lang !== "de" && lang !== "en") return;
+    if (lang === uiLanguage) return;
+    uiLanguage = lang;
+    io.emit("language", { lang: uiLanguage });
+  });
 
   // Admin: Quiz starten
   socket.on("start-quiz", () => {

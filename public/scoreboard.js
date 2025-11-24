@@ -1,19 +1,79 @@
 const socket = io({ query: { role: "scoreboard" } });
 
+const headingEl = document.getElementById("scoreboardHeading");
 const statusEl = document.getElementById("scoreboardStatus");
 const tableEl = document.getElementById("scoreboardTable");
 const bodyEl = document.getElementById("scoreboardBody");
+const rankHeader = document.getElementById("rankHeader");
+const nameHeader = document.getElementById("nameHeader");
+const scoreHeader = document.getElementById("scoreHeader");
 
-function renderRanking(ranking, final = false) {
+const translations = {
+  de: {
+    heading: "Rangliste",
+    waiting: "Warte auf Quizstart oder erste Antworten ...",
+    noQuiz: "Noch kein Quiz geladen.",
+    quizPrepared: "Quiz vorbereitet, wartet auf Start.",
+    quizRunning: "Quiz l\u00e4uft \u00b7 Live-Rangliste.",
+    liveRanking: "Live-Rangliste \u00b7 Quiz l\u00e4uft ...",
+    finalRanking: "Finale Rangliste",
+    noPlayers: "Noch keine Spieler mit Punkten.",
+    rankHeader: "Platz",
+    nameHeader: "Name",
+    scoreHeader: "Punkte",
+    scoreCell: (score) => `${score} Punkte`,
+  },
+  en: {
+    heading: "Leaderboard",
+    waiting: "Waiting for quiz start or first answers...",
+    noQuiz: "No quiz loaded yet.",
+    quizPrepared: "Quiz ready, waiting to start.",
+    quizRunning: "Quiz running \u00b7 Live leaderboard.",
+    liveRanking: "Live leaderboard \u00b7 Quiz running...",
+    finalRanking: "Final leaderboard",
+    noPlayers: "No players with points yet.",
+    rankHeader: "Rank",
+    nameHeader: "Name",
+    scoreHeader: "Points",
+    scoreCell: (score) => `${score} points`,
+  },
+};
+
+let uiLanguage = "de";
+let lastRanking = [];
+let lastRankingFinal = false;
+let currentStatusKey = "waiting";
+
+function t(key, ...args) {
+  const langPack = translations[uiLanguage] || translations.de;
+  const value = langPack[key];
+  if (typeof value === "function") {
+    return value(...args);
+  }
+  return value || "";
+}
+
+function setStatus(key) {
+  currentStatusKey = key;
+  statusEl.textContent = t(key);
+}
+
+function renderRanking(ranking, final = false, skipStatus = false) {
+  lastRanking = ranking || [];
+  lastRankingFinal = final;
+
   if (!ranking || !ranking.length) {
-    statusEl.textContent = "Noch keine Spieler mit Punkten.";
     tableEl.style.display = "none";
+    bodyEl.innerHTML = "";
+    if (!skipStatus) {
+      setStatus("noPlayers");
+    }
     return;
   }
 
-  statusEl.textContent = final
-    ? "Finale Rangliste"
-    : "Live-Rangliste · Quiz läuft ...";
+  if (!skipStatus) {
+    setStatus(final ? "finalRanking" : "liveRanking");
+  }
 
   tableEl.style.display = "table";
   bodyEl.innerHTML = "";
@@ -21,7 +81,6 @@ function renderRanking(ranking, final = false) {
   ranking.forEach((row) => {
     const tr = document.createElement("tr");
 
-    // Top 3 visuell hervorheben (Styles kommen aus styles.css)
     if (row.rank === 1) tr.classList.add("rank-1");
     if (row.rank === 2) tr.classList.add("rank-2");
     if (row.rank === 3) tr.classList.add("rank-3");
@@ -31,16 +90,16 @@ function renderRanking(ranking, final = false) {
     const tdScore = document.createElement("td");
 
     let medal = "";
-    if (row.rank === 1) medal = "🥇";
-    else if (row.rank === 2) medal = "🥈";
-    else if (row.rank === 3) medal = "🥉";
+    if (row.rank === 1) medal = "\ud83e\udd47";
+    else if (row.rank === 2) medal = "\ud83e\udd48";
+    else if (row.rank === 3) medal = "\ud83e\udd49";
 
     tdRank.textContent = medal
       ? `${row.rank}. ${medal}`
       : `${row.rank}.`;
 
     tdName.textContent = row.name;
-    tdScore.textContent = row.score + " Punkte";
+    tdScore.textContent = t("scoreCell", row.score);
 
     tr.appendChild(tdRank);
     tr.appendChild(tdName);
@@ -50,24 +109,43 @@ function renderRanking(ranking, final = false) {
   });
 }
 
+function applyLanguage(lang) {
+  if (!translations[lang]) return;
+  uiLanguage = lang;
+  document.documentElement.lang = lang;
+  headingEl.textContent = t("heading");
+  rankHeader.textContent = t("rankHeader");
+  nameHeader.textContent = t("nameHeader");
+  scoreHeader.textContent = t("scoreHeader");
+  setStatus(currentStatusKey);
+  renderRanking(lastRanking, lastRankingFinal, true);
+}
+
+applyLanguage(uiLanguage);
+
 // Initialstatus vom Server
 socket.on("quiz-status", (status) => {
+  applyLanguage(status.language);
+
   if (!status.quizLoaded) {
-    statusEl.textContent = "Noch kein Quiz geladen.";
+    lastRanking = [];
+    lastRankingFinal = false;
     tableEl.style.display = "none";
+    bodyEl.innerHTML = "";
+    setStatus("noQuiz");
     return;
   }
 
   if (status.quizInProgress) {
-    statusEl.textContent = "Quiz läuft · Live-Rangliste.";
+    setStatus("quizRunning");
   } else {
-    statusEl.textContent = "Quiz vorbereitet, wartet auf Start.";
+    setStatus("quizPrepared");
   }
 });
 
 // Wenn Quiz startet
 socket.on("quiz-started", () => {
-  statusEl.textContent = "Quiz läuft · Live-Rangliste.";
+  setStatus("quizRunning");
 });
 
 // Live-Scores nach jeder Antwort
@@ -78,4 +156,8 @@ socket.on("scores", (ranking) => {
 // Finale Rangliste nach dem Ende
 socket.on("quiz-ended", ({ ranking }) => {
   renderRanking(ranking, true);
+});
+
+socket.on("language", ({ lang }) => {
+  applyLanguage(lang);
 });

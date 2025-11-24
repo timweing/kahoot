@@ -16,6 +16,7 @@ const uploadStatus = document.getElementById("uploadStatus");
 
 const startQuizBtn = document.getElementById("startQuizBtn");
 const quizInfo = document.getElementById("quizInfo");
+const languageSelect = document.getElementById("languageSelect");
 
 const playersUl = document.getElementById("players");
 
@@ -26,9 +27,44 @@ const questionStatsTable = document.getElementById("questionStatsTable");
 const questionStatsBody = document.getElementById("questionStatsBody");
 const questionStatsStatus = document.getElementById("questionStatsStatus");
 
+let totalQuestions = 0;
+let currentQuestionIndex = -1;
+let quizRunning = false;
+let currentLanguage = "de";
+
+function renderQuizInfo() {
+  if (!totalQuestions) {
+    quizInfo.textContent = "Noch kein Quiz geladen.";
+    return;
+  }
+
+  if (quizRunning) {
+    const humanIndex = currentQuestionIndex >= 0 ? currentQuestionIndex + 1 : 0;
+    quizInfo.textContent =
+      humanIndex > 0
+        ? `Quiz läuft - Frage ${humanIndex} von ${totalQuestions}`
+        : "Quiz läuft...";
+    return;
+  }
+
+  quizInfo.textContent = `Fragen geladen: ${totalQuestions}.`;
+}
+
 socket.on("admin-auth-failed", () => {
   window.alert("Admin-Passwort ist falsch.");
   window.location.href = "/";
+});
+
+function applyLanguage(lang) {
+  if (lang !== "de" && lang !== "en") return;
+  currentLanguage = lang;
+  languageSelect.value = lang;
+}
+
+languageSelect.addEventListener("change", () => {
+  const lang = languageSelect.value;
+  if (lang === currentLanguage) return;
+  socket.emit("set-language", lang);
 });
 
 // CSV Upload
@@ -73,33 +109,37 @@ startQuizBtn.addEventListener("click", () => {
 // Socket-Events
 
 socket.on("quiz-status", (status) => {
-  if (status.quizLoaded) {
-    quizInfo.textContent =
-      "Fragen geladen: " + status.totalQuestions + (status.quizInProgress
-        ? " (Quiz läuft)"
-        : "");
-    startQuizBtn.disabled = status.totalQuestions === 0;
-  } else {
-    quizInfo.textContent = "Noch kein Quiz geladen.";
-    startQuizBtn.disabled = true;
-  }
+  totalQuestions = status.totalQuestions || 0;
+  currentQuestionIndex = status.currentQuestionIndex ?? -1;
+  quizRunning = Boolean(status.quizInProgress);
+  applyLanguage(status.language);
+  startQuizBtn.disabled = totalQuestions === 0;
+  renderQuizInfo();
 });
 
 socket.on("quiz-loaded", (data) => {
-  quizInfo.textContent =
-    "Fragen geladen: " + data.totalQuestions + ". Bereit zum Start.";
+  totalQuestions = data.totalQuestions || 0;
+  currentQuestionIndex = -1;
+  quizRunning = false;
   startQuizBtn.disabled = data.totalQuestions === 0;
+  renderQuizInfo();
 });
 
 socket.on("quiz-started", () => {
+  quizRunning = true;
+  currentQuestionIndex = -1;
   rankingStatus.textContent = "";
   rankingTable.style.display = "none";
   rankingBody.innerHTML = "";
   questionStatsStatus.textContent = "Quiz läuft … Antworten werden gesammelt.";
   questionStatsTable.style.display = "none";
   questionStatsBody.innerHTML = "";
-  quizInfo.textContent = "Quiz läuft...";
   startQuizBtn.disabled = true;
+  renderQuizInfo();
+});
+
+socket.on("language", ({ lang }) => {
+  applyLanguage(lang);
 });
 
 // Spieler-Liste aktualisieren
@@ -124,8 +164,18 @@ socket.on("scores", (ranking) => {
   // Nur anzeigen, wenn du willst – hier nix tun oder Debug.
 });
 
+socket.on("question", (payload) => {
+  if (!payload) return;
+  currentQuestionIndex = typeof payload.index === "number" ? payload.index : -1;
+  totalQuestions = payload.total || totalQuestions;
+  quizRunning = true;
+  renderQuizInfo();
+});
+
 // Quiz beendet -> Rangliste anzeigen
 socket.on("quiz-ended", ({ ranking, questionRanking }) => {
+  quizRunning = false;
+  currentQuestionIndex = -1;
   if (!ranking || !ranking.length) {
     rankingStatus.textContent = "Keine Spieler oder keine Punkte.";
     rankingTable.style.display = "none";
