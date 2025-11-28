@@ -1,4 +1,4 @@
-# Quiz & Umfrage
+# Quiz und Umfrage
 
 Ein schlankes, selbst gehostetes Quiz im Stil von Kahoot **plus** ein
 Mentimeter-ähnliches Umfragetool (Wordcloud, Single Choice, Wichtigkeit). Ein
