@@ -19,6 +19,7 @@ const pollInfo = document.getElementById("pollInfo");
 const participantsList = document.getElementById("participants");
 const questionTitle = document.getElementById("questionTitle");
 const liveResult = document.getElementById("liveResult");
+const themeToggle = document.getElementById("themeToggle");
 
 let totalQuestions = 0;
 let currentQuestionIndex = -1;
@@ -26,6 +27,112 @@ let pollRunning = false;
 let currentQuestion = null;
 let currentAggregate = null;
 let lastResults = null;
+
+const THEME_KEY = "kahoot-theme";
+function setTheme(theme) {
+  const value = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", value);
+  if (themeToggle) {
+    themeToggle.textContent = value === "light" ? "🌞 Light" : "🌙 Dark";
+  }
+  try {
+    localStorage.setItem(THEME_KEY, value);
+  } catch (_) {}
+}
+function initTheme() {
+  const stored = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (_) {
+      return null;
+    }
+  })();
+  setTheme(stored || "dark");
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    setTheme(current === "light" ? "dark" : "light");
+  });
+}
+initTheme();
+
+function renderD3Wordcloud(target, entries, opts = {}) {
+  const fallback = () => {
+    target.innerHTML = "";
+    const container = document.createElement("div");
+    container.className = "wordcloud-fallback";
+    entries.forEach((entry) => {
+      const span = document.createElement("span");
+      span.textContent = `${entry.word} (${entry.count})`;
+      container.appendChild(span);
+    });
+    target.appendChild(container);
+  };
+
+  if (!window.d3 || !d3.layout || !d3.layout.cloud) {
+    fallback();
+    return;
+  }
+
+  target.innerHTML = "";
+  if (!entries || !entries.length) {
+    const p = document.createElement("p");
+    p.className = "status";
+    p.textContent = "Noch keine Wörter eingereicht.";
+    target.appendChild(p);
+    return;
+  }
+
+  const width = target.clientWidth || 620;
+  const height = opts.height || 320;
+  const maxCount = Math.max(...entries.map((e) => e.count));
+  const sizeScale = d3
+    .scaleLinear()
+    .domain([1, maxCount || 1])
+    .range([16, 52]);
+  const color = d3.scaleOrdinal(d3.schemeTableau10);
+
+  const words = entries.map((e) => ({
+    text: e.word,
+    size: sizeScale(e.count),
+  }));
+
+  const svg = d3
+    .select(target)
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  const group = svg
+    .append("g")
+    .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+  d3.layout
+    .cloud()
+    .size([width, height])
+    .words(words)
+    .padding(4)
+    .rotate(() => 0) // nur horizontale Wörter
+    .font("system-ui")
+    .fontSize((d) => d.size)
+    .on("end", (layoutWords) => {
+      group
+        .selectAll("text")
+        .data(layoutWords)
+        .enter()
+        .append("text")
+        .style("font-size", (d) => `${d.size}px`)
+        .style("font-family", "system-ui, sans-serif")
+        .style("fill", (_, i) => color(i))
+        .attr("text-anchor", "middle")
+        .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+        .text((d) => d.text);
+    })
+    .start();
+}
 
 function renderParticipants(list) {
   participantsList.innerHTML = "";
@@ -56,29 +163,8 @@ function renderPollInfo() {
 }
 
 function renderWordcloud(aggregate, target) {
-  target.innerHTML = "";
-  const container = document.createElement("div");
-  container.className = "wordcloud";
   const entries = aggregate.entries || [];
-  if (!entries.length) {
-    const p = document.createElement("p");
-    p.className = "status";
-    p.textContent = "Noch keine Wörter eingereicht.";
-    target.appendChild(p);
-    return;
-  }
-  const maxCount = Math.max(...entries.map((e) => e.count));
-  entries.forEach((entry) => {
-    const span = document.createElement("span");
-    const factor = maxCount ? entry.count / maxCount : 0;
-    const minSize = 14;
-    const maxSize = 42;
-    const size = minSize + factor * (maxSize - minSize);
-    span.textContent = entry.word;
-    span.style.fontSize = size.toFixed(0) + "px";
-    container.appendChild(span);
-  });
-  target.appendChild(container);
+  renderD3Wordcloud(target, entries);
 }
 
 function renderSingle(aggregate, target) {

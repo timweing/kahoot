@@ -8,7 +8,12 @@
   </head>
   <body>
     <div class="container">
-      <h1>Umfrage Anzeige</h1>
+      <div class="topbar">
+        <h1>Umfrage Anzeige</h1>
+        <button id="themeToggle" class="theme-toggle" type="button">
+          🌙 Dark
+        </button>
+      </div>
 
       <div class="card">
         <p id="displayStatus" class="status">
@@ -20,6 +25,8 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
     <script src="/poll-display.js"></script>
   </body>
 </html>

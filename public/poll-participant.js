@@ -13,6 +13,37 @@ const questionText = document.getElementById("questionText");
 const questionPill = document.getElementById("questionPill");
 const questionBody = document.getElementById("questionBody");
 const answerStatus = document.getElementById("answerStatus");
+const themeToggle = document.getElementById("themeToggle");
+
+const THEME_KEY = "kahoot-theme";
+function setTheme(theme) {
+  const value = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", value);
+  if (themeToggle) {
+    themeToggle.textContent = value === "light" ? "🌞 Light" : "🌙 Dark";
+  }
+  try {
+    localStorage.setItem(THEME_KEY, value);
+  } catch (_) {}
+}
+function initTheme() {
+  const stored = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (_) {
+      return null;
+    }
+  })();
+  setTheme(stored || "dark");
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    setTheme(current === "light" ? "dark" : "light");
+  });
+}
+initTheme();
 
 let joined = false;
 let totalQuestions = 0;

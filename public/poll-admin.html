@@ -8,7 +8,12 @@
   </head>
   <body>
     <div class="container">
-      <h1>Umfrage Admin</h1>
+      <div class="topbar">
+        <h1>Umfrage Admin</h1>
+        <button id="themeToggle" class="theme-toggle" type="button">
+          🌙 Dark
+        </button>
+      </div>
 
       <div class="card">
         <h2>CSV hochladen</h2>
@@ -48,6 +53,8 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
     <script src="/poll-admin.js"></script>
   </body>
 </html>

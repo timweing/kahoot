@@ -26,11 +26,42 @@ const rankingStatus = document.getElementById("rankingStatus");
 const questionStatsTable = document.getElementById("questionStatsTable");
 const questionStatsBody = document.getElementById("questionStatsBody");
 const questionStatsStatus = document.getElementById("questionStatsStatus");
+const themeToggle = document.getElementById("themeToggle");
 
 let totalQuestions = 0;
 let currentQuestionIndex = -1;
 let quizRunning = false;
 let currentLanguage = "de";
+
+const THEME_KEY = "kahoot-theme";
+function setTheme(theme) {
+  const value = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", value);
+  if (themeToggle) {
+    themeToggle.textContent = value === "light" ? "🌞 Light" : "🌙 Dark";
+  }
+  try {
+    localStorage.setItem(THEME_KEY, value);
+  } catch (_) {}
+}
+function initTheme() {
+  const stored = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (_) {
+      return null;
+    }
+  })();
+  setTheme(stored || "dark");
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    setTheme(current === "light" ? "dark" : "light");
+  });
+}
+initTheme();
 
 function renderQuizInfo() {
   if (!totalQuestions) {
