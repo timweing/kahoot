@@ -96,4 +96,4 @@ Wichtigkeitsranking über Drag & Drop (Borda-Score).
 - Anpassungen an CSV-Parsing oder Scoring können direkt in `server.js`
   vorgenommen werden.
 
-Viel Spaß beim Ausprobieren!
+Viel Spass beim Ausprobieren!
