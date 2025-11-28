@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Umfrage Teilnehmer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Live Umfrage</h1>
+
+      <div class="card" id="joinCard">
+        <h2>Beitreten</h2>
+        <p class="status">
+          Wähle einen Anzeigenamen, der in den Ergebnissen angezeigt wird.
+        </p>
+        <input
+          type="text"
+          id="participantName"
+          placeholder="Dein Name"
+          autocomplete="off"
+        />
+        <button id="joinBtn">Beitreten</button>
+        <p id="joinStatus" class="status"></p>
+      </div>
+
+      <div class="card" id="waitCard" style="display: none">
+        <h2>Bereit</h2>
+        <p class="status">Warte, bis der Admin die Umfrage startet.</p>
+      </div>
+
+      <div class="card" id="questionCard" style="display: none">
+        <div id="questionHeader">
+          <h2 id="questionText">Frage</h2>
+          <div id="questionMeta" class="status">
+            <span id="questionPill" class="question-pill"></span>
+          </div>
+        </div>
+
+        <div id="questionBody"></div>
+        <p id="answerStatus" class="status"></p>
+      </div>
+
+      <div class="card" id="endCard" style="display: none">
+        <h2>Danke!</h2>
+        <p class="status">Die Umfrage ist beendet.</p>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/poll-participant.js"></script>
+  </body>
+</html>

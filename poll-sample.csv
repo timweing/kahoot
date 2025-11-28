@@ -1,0 +1,4 @@
+type;question;options;maxWordsPerUser
+wordcloud;Welche Skills braucht unser Team 2024?;;3
+single;Welches Thema priorisieren wir?;Security|Performance|User Experience|Stabilität;
+importance;Welche Features sind am wichtigsten?;Dark Mode|Offline-Fähigkeit|Schnelle Suche|Automatisierung;

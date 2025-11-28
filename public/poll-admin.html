@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Umfrage Admin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Umfrage Admin</h1>
+
+      <div class="card">
+        <h2>CSV hochladen</h2>
+        <p class="status">
+          Format (mit Kopfzeile):<br />
+          <code>type;question;options;maxWordsPerUser</code><br />
+          <strong>type</strong> = wordcloud | single | importance<br />
+          <strong>options</strong> = bei single/importance per <code>|</code> trennen<br />
+          <strong>maxWordsPerUser</strong> = nur bei wordcloud (Default 3)
+        </p>
+        <form id="uploadForm">
+          <input type="file" id="csvFile" accept=".csv" required />
+          <button type="submit">CSV hochladen</button>
+        </form>
+        <p id="uploadStatus" class="status"></p>
+      </div>
+
+      <div class="card">
+        <h2>Steuerung</h2>
+        <p id="pollInfo" class="status">Noch keine Umfrage geladen.</p>
+        <div class="button-row">
+          <button id="startPollBtn" disabled>Umfrage starten</button>
+          <button id="nextQuestionBtn" disabled>Nächste Frage</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Teilnehmer</h2>
+        <ul id="participants" class="players-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Aktuelle Frage</h2>
+        <p id="questionTitle" class="status"></p>
+        <div id="liveResult"></div>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/poll-admin.js"></script>
+  </body>
+</html>
