@@ -577,6 +577,13 @@ button:disabled {
   padding: 8px 10px;
 }
 
+:root[data-theme="light"] .drag-list li,
+:root[data-theme="light"] .importance-row {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+}
+
 .result-block {
   margin-bottom: 16px;
   padding-bottom: 10px;
