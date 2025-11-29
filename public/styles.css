@@ -189,6 +189,12 @@ button:disabled {
   color: var(--text-soft);
 }
 
+:root[data-theme="light"] .badge {
+  background: #eef2ff;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+
 /* PLAYER UI */
 
 #questionMeta {
@@ -383,6 +389,38 @@ button:disabled {
   background: radial-gradient(circle at top left, #3f2a1b 0, #020617 70%);
 }
 
+:root[data-theme="light"] .ranking-table {
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme="light"] .ranking-table thead {
+  background: linear-gradient(135deg, #e0e7ff, #eef2ff);
+}
+
+:root[data-theme="light"] .ranking-table th {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .ranking-table th,
+:root[data-theme="light"] .ranking-table td {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme="light"] .ranking-table tbody tr.rank-1 {
+  background: radial-gradient(circle at top left, #ecfdf3 0, #d1fae5 90%);
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .ranking-table tbody tr.rank-2 {
+  background: radial-gradient(circle at top left, #e0e7ff 0, #c7d2fe 90%);
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .ranking-table tbody tr.rank-3 {
+  background: radial-gradient(circle at top left, #fef3c7 0, #fde68a 90%);
+  color: #0f172a;
+}
+
 /* Endtext beim Spieler */
 
 #endCard h2 {
@@ -535,6 +573,15 @@ button:disabled {
   padding-left: 8px;
   display: flex;
   align-items: center;
+}
+
+:root[data-theme="light"] .result-bar-outer {
+  background: #e5e7eb;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme="light"] .result-bar-inner {
+  background: linear-gradient(90deg, var(--accent), #7c83ff);
 }
 
 .drag-list {
