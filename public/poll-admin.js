@@ -135,14 +135,8 @@ function renderD3Wordcloud(target, entries, opts = {}) {
 }
 
 function renderParticipants(list) {
-  participantsList.innerHTML = "";
-  (list || []).forEach((p) => {
-    const li = document.createElement("li");
-    const spanName = document.createElement("span");
-    spanName.textContent = p.name;
-    li.appendChild(spanName);
-    participantsList.appendChild(li);
-  });
+  const count = Array.isArray(list) ? list.length : 0;
+  participantsList.textContent = `Teilnehmer: ${count}`;
 }
 
 function renderPollInfo() {

@@ -54,6 +54,10 @@ if (joinStatus) {
   joinStatus.textContent = "Verbinde ...";
 }
 
+socket.on("connect", () => {
+  socket.emit("poll-join");
+});
+
 function showCard(card) {
   [joinCard, waitCard, questionCard, endCard].forEach((c) => {
     c.style.display = c === card ? "block" : "none";
