@@ -5,8 +5,8 @@ const waitCard = document.getElementById("waitCard");
 const questionCard = document.getElementById("questionCard");
 const endCard = document.getElementById("endCard");
 
-const joinStatus = document.getElementById("joinStatus");
 const joinBtn = document.getElementById("joinBtn");
+const joinStatus = document.getElementById("joinStatus");
 
 const questionText = document.getElementById("questionText");
 const questionPill = document.getElementById("questionPill");

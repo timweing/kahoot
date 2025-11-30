@@ -393,11 +393,17 @@ io.on("connection", (socket) => {
     goToNextQuestion();
   });
 
-  socket.on("poll-join", () => {
-    // Beitritt ist nun anonym und automatisch bei Verbindungsaufbau.
-    const participant = participants.get(socket.id);
-    if (participant) {
-      socket.emit("poll-joined", { name: participant.name });
+  socket.on("poll-join", (name) => {
+    const existing = participants.get(socket.id);
+    if (existing) {
+      socket.emit("poll-joined", { name: existing.name });
+      return;
+    }
+    const trimmed = (name || "").trim();
+    if (trimmed) {
+      participants.set(socket.id, { id: socket.id, name: trimmed });
+      socket.emit("poll-joined", { name: trimmed });
+      broadcastParticipants();
       return;
     }
     registerAnonymousParticipant(socket);

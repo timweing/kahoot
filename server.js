@@ -32,6 +32,14 @@ let currentPollIndex = -1;
 let pollAggregates = [];
 const pollParticipants = new Map();
 const pollAnswersPerQuestion = new Map();
+let pollAnonymousCounter = 1;
+
+function registerAnonymousPollParticipant(socket) {
+  const name = `Teilnehmer #${pollAnonymousCounter++}`;
+  pollParticipants.set(socket.id, { id: socket.id, name });
+  socket.emit("poll-joined", { name });
+  broadcastPollParticipants();
+}
 
 // Spieler: Map socketId -> { name, score }
 const players = new Map();
@@ -594,11 +602,21 @@ io.on("connection", (socket) => {
     });
 
     socket.on("poll-join", (name) => {
+      const existing = pollParticipants.get(socket.id);
+      if (existing) {
+        socket.emit("poll-joined", { name: existing.name });
+        return;
+      }
+
       const trimmed = (name || "").trim();
-      if (!trimmed) return;
-      pollParticipants.set(socket.id, { id: socket.id, name: trimmed });
-      socket.emit("poll-joined", { name: trimmed });
-      broadcastPollParticipants();
+      if (trimmed) {
+        pollParticipants.set(socket.id, { id: socket.id, name: trimmed });
+        socket.emit("poll-joined", { name: trimmed });
+        broadcastPollParticipants();
+        return;
+      }
+
+      registerAnonymousPollParticipant(socket);
     });
 
     socket.on("poll-answer", (payload) => {
