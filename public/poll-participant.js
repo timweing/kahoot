@@ -6,6 +6,7 @@ const questionCard = document.getElementById("questionCard");
 const endCard = document.getElementById("endCard");
 
 const joinStatus = document.getElementById("joinStatus");
+const joinBtn = document.getElementById("joinBtn");
 
 const questionText = document.getElementById("questionText");
 const questionPill = document.getElementById("questionPill");
@@ -51,12 +52,9 @@ let answeredThisQuestion = false;
 let queuedQuestion = null;
 
 if (joinStatus) {
-  joinStatus.textContent = "Verbinde ...";
+  joinStatus.textContent =
+    "Klicke auf „Teilnehmen“, um anonym beizutreten.";
 }
-
-socket.on("connect", () => {
-  socket.emit("poll-join");
-});
 
 function showCard(card) {
   [joinCard, waitCard, questionCard, endCard].forEach((c) => {
@@ -229,9 +227,20 @@ function renderQuestion(q) {
   showCard(questionCard);
 }
 
+if (joinBtn) {
+  joinBtn.addEventListener("click", () => {
+    if (joined) return;
+    joinStatus.textContent = "Verbinde ...";
+    socket.emit("poll-join");
+  });
+}
+
 socket.on("poll-joined", ({ name }) => {
   joined = true;
   joinStatus.textContent = name ? `Anonym verbunden (${name})` : "Anonym verbunden.";
+  if (joinBtn) {
+    joinBtn.disabled = true;
+  }
   showCard(waitCard);
   if (queuedQuestion) {
     renderQuestion(queuedQuestion);

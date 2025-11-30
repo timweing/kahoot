@@ -374,7 +374,6 @@ io.on("connection", (socket) => {
     sendStatus(socket);
   } else {
     socket.join("poll-participants");
-    registerAnonymousParticipant(socket);
     sendStatus(socket);
   }
 
