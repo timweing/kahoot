@@ -24,6 +24,14 @@ let aggregates = [];
 
 const participants = new Map();
 const answersPerQuestion = new Map();
+let anonymousCounter = 1;
+
+function registerAnonymousParticipant(socket) {
+  const name = `Teilnehmer #${anonymousCounter++}`;
+  participants.set(socket.id, { id: socket.id, name });
+  socket.emit("poll-joined", { name });
+  broadcastParticipants();
+}
 
 function initAggregate(question) {
   if (question.type === "wordcloud") {
@@ -366,6 +374,7 @@ io.on("connection", (socket) => {
     sendStatus(socket);
   } else {
     socket.join("poll-participants");
+    registerAnonymousParticipant(socket);
     sendStatus(socket);
   }
 
@@ -385,12 +394,14 @@ io.on("connection", (socket) => {
     goToNextQuestion();
   });
 
-  socket.on("poll-join", (name) => {
-    const trimmed = (name || "").trim();
-    if (!trimmed) return;
-    participants.set(socket.id, { id: socket.id, name: trimmed });
-    socket.emit("poll-joined", { name: trimmed });
-    broadcastParticipants();
+  socket.on("poll-join", () => {
+    // Beitritt ist nun anonym und automatisch bei Verbindungsaufbau.
+    const participant = participants.get(socket.id);
+    if (participant) {
+      socket.emit("poll-joined", { name: participant.name });
+      return;
+    }
+    registerAnonymousParticipant(socket);
   });
 
   socket.on("poll-answer", (payload) => {

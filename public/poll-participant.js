@@ -5,8 +5,6 @@ const waitCard = document.getElementById("waitCard");
 const questionCard = document.getElementById("questionCard");
 const endCard = document.getElementById("endCard");
 
-const participantNameInput = document.getElementById("participantName");
-const joinBtn = document.getElementById("joinBtn");
 const joinStatus = document.getElementById("joinStatus");
 
 const questionText = document.getElementById("questionText");
@@ -51,6 +49,10 @@ let currentQuestionIndex = -1;
 let currentQuestion = null;
 let answeredThisQuestion = false;
 let queuedQuestion = null;
+
+if (joinStatus) {
+  joinStatus.textContent = "Verbinde ...";
+}
 
 function showCard(card) {
   [joinCard, waitCard, questionCard, endCard].forEach((c) => {
@@ -223,18 +225,9 @@ function renderQuestion(q) {
   showCard(questionCard);
 }
 
-joinBtn.addEventListener("click", () => {
-  const name = participantNameInput.value.trim();
-  if (!name) {
-    joinStatus.textContent = "Bitte gib einen Namen ein.";
-    return;
-  }
-  socket.emit("poll-join", name);
-});
-
 socket.on("poll-joined", ({ name }) => {
   joined = true;
-  joinStatus.textContent = `Beigetreten als: ${name}`;
+  joinStatus.textContent = name ? `Anonym verbunden (${name})` : "Anonym verbunden.";
   showCard(waitCard);
   if (queuedQuestion) {
     renderQuestion(queuedQuestion);
