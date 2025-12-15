@@ -78,7 +78,9 @@ function setAnswerStatus(text) {
 
 function setupDragList(listEl) {
   let dragged = null;
+  let activeTouchId = null;
 
+  // Native drag-and-drop for desktop browsers
   listEl.addEventListener("dragstart", (e) => {
     const li = e.target.closest("li");
     if (!li) return;
@@ -99,6 +101,44 @@ function setupDragList(listEl) {
     e.preventDefault();
     dragged = null;
   });
+
+  // Touch fallback (iOS Safari does not support HTML5 drag-and-drop)
+  listEl.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch") return;
+    const li = e.target.closest("li");
+    if (!li) return;
+    dragged = li;
+    activeTouchId = e.pointerId;
+    li.setPointerCapture?.(activeTouchId);
+    li.classList.add("dragging");
+    e.preventDefault();
+  });
+
+  listEl.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "touch" || activeTouchId !== e.pointerId || !dragged) {
+      return;
+    }
+    const target = document.elementFromPoint(e.clientX, e.clientY)?.closest("li");
+    if (!target || target === dragged) return;
+    const rect = target.getBoundingClientRect();
+    const before = e.clientY < rect.top + rect.height / 2;
+    listEl.insertBefore(dragged, before ? target : target.nextSibling);
+  });
+
+  const finishTouchDrag = (e) => {
+    if (e.pointerType !== "touch" || activeTouchId !== e.pointerId) return;
+    dragged?.classList.remove("dragging");
+    if (dragged && typeof dragged.releasePointerCapture === "function") {
+      try {
+        dragged.releasePointerCapture(activeTouchId);
+      } catch (_) {}
+    }
+    dragged = null;
+    activeTouchId = null;
+  };
+
+  listEl.addEventListener("pointerup", finishTouchDrag);
+  listEl.addEventListener("pointercancel", finishTouchDrag);
 }
 
 function renderWordcloudQuestion(q) {
